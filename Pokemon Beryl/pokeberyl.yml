@@ -2,22 +2,24 @@
 - name: Install and build Pokemon Beryl
   hosts: target
   remote_user: user
-  become: true
   vars:
     agbcc_version: "da598c1d918402c42c0c0d7128ba14567f3175e9"
     beryl_version: "57ce5b7e25bd47ca00b61e491e830b2dee8851ad"
   tasks:
     - name: Update apt
+      become: true
       ansible.builtin.apt:
         update_cache: true
 
     - name: Install needed packages
+      become: true
       ansible.builtin.apt:
         pkg:
           - build-essential
           - binutils-arm-none-eabi
           - git
           - libpng-dev
+          - pkg-config
 
     - name: Clone agbcc
       ansible.builtin.git:
@@ -34,12 +36,7 @@
     - name: Build agbcc
       ansible.builtin.shell:
         chdir: /home/user/agbcc
-        cmd: ./build.sh
-
-    - name: Install agbcc
-      ansible.builtin.shell:
-        chdir: /home/user/agbcc
-        cmd: ./install.sh /home/user/pokeberyl
+        cmd: ./build.sh && ./install.sh /home/user/pokeberyl
 
     - name: Build Pokemon Beryl
       community.general.make:
