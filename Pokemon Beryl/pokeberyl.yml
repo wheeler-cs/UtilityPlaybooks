@@ -5,6 +5,7 @@
   vars:
     agbcc_version: "da598c1d918402c42c0c0d7128ba14567f3175e9"
     beryl_version: "57ce5b7e25bd47ca00b61e491e830b2dee8851ad"
+    build_threads: 4
   tasks:
     - name: Update apt
       become: true
@@ -36,8 +37,16 @@
     - name: Build agbcc
       ansible.builtin.shell:
         chdir: /home/user/agbcc
-        cmd: ./build.sh && ./install.sh /home/user/pokeberyl
+        cmd: ./build.sh
+        creates: agbcc
+
+    - name: Install agbcc
+      ansible.builtin.shell:
+        chdir: /home/user/agbcc
+        cmd: ./install.sh /home/user/pokeberyl
+        creates: /home/user/pokeberyl/tools/agbcc/bin/agbcc
 
     - name: Build Pokemon Beryl
       community.general.make:
         chdir: /home/user/pokeberyl
+        jobs: "{{ build_threads }}"
